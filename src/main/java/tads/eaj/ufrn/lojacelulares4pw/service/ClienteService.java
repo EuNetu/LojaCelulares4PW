@@ -2,9 +2,12 @@ package tads.eaj.ufrn.lojacelulares4pw.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tads.eaj.ufrn.lojacelulares4pw.dto.response.ClienteResponseDTO;
+import tads.eaj.ufrn.lojacelulares4pw.model.Celular;
 import tads.eaj.ufrn.lojacelulares4pw.model.Cliente;
 import tads.eaj.ufrn.lojacelulares4pw.repository.ClienteRepository;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -19,8 +22,11 @@ public class ClienteService {
         this.repository = repository;
     }
 
-    public List<Cliente> findAll(){
-        return repository.findAllByDeletedIsNull();
+    public List<ClienteResponseDTO> findAll(){
+        ArrayList<ClienteResponseDTO> clientesDTO = new ArrayList<>();
+        for (Cliente cliente : repository.findAllByDeletedIsNull())
+            clientesDTO.add(new ClienteResponseDTO(cliente));
+        return clientesDTO;
     }
 
     public Optional<Cliente> getClienteById(Long id){

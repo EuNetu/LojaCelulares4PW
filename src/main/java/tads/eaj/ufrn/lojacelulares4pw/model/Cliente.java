@@ -20,7 +20,7 @@ public class Cliente implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_cliente")
     private Long id;
-    private String name;
+    private String nome;
     private String sobrenome;
     private String cpf;
     private String telefone;
@@ -28,6 +28,6 @@ public class Cliente implements Serializable {
     private Date deleted;
 
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_celular")
+    @JoinColumn(name = "celular_id")
     private List<Celular> celular;
 }

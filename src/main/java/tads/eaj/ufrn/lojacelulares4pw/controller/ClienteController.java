@@ -3,6 +3,8 @@ package tads.eaj.ufrn.lojacelulares4pw.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tads.eaj.ufrn.lojacelulares4pw.dto.request.ClienteRequestDTO;
+import tads.eaj.ufrn.lojacelulares4pw.dto.response.ClienteResponseDTO;
 import tads.eaj.ufrn.lojacelulares4pw.model.Cliente;
 import tads.eaj.ufrn.lojacelulares4pw.service.ClienteService;
 
@@ -21,40 +23,36 @@ public class ClienteController {
         this.service = service;
     }
     @GetMapping
-    public List<Cliente> listar(){
+    public List<ClienteResponseDTO> listar(){
         return service.findAll();
     }
 
     @GetMapping(path = {"/{id}"})
-    public ResponseEntity<Cliente> getClienteById(@PathVariable Long id){
+    public ResponseEntity<ClienteResponseDTO> getClienteById(@PathVariable Long id){
 
         Optional<Cliente> cliente = service.getClienteById(id);
 
         if (cliente.isEmpty()) {
             return ResponseEntity.notFound().build();
         }else{
-            return ResponseEntity.ok().body(cliente.get());
+            return ResponseEntity.ok().body(new ClienteResponseDTO(cliente.get()));
         }
     }
 
     @PostMapping
-    public ResponseEntity salvar(@RequestBody Cliente cliente){
-        service.save(cliente);
-        return ResponseEntity.created(URI.create("/clientes/" + cliente.getId())).body(cliente);
+    public ResponseEntity<ClienteResponseDTO> salvar(@RequestBody ClienteRequestDTO clienteDTO){
+        Cliente cliente = service.save(clienteDTO.build());
+        return ResponseEntity.created(URI.create("/clientes/" + cliente.getId())).body(new ClienteResponseDTO(cliente));
     }
 
     @PutMapping(path = "/{id}")
-    public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody Cliente cliente){
-        return service.getClienteById(id)
-                .map( record -> {
-                    if (record.getId() == cliente.getId()){
-                        service.update(cliente);
-                        return ResponseEntity.ok(cliente);
-                    }else{
-                        return ResponseEntity.notFound().build();
-                    }
-
-                }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ClienteResponseDTO> atualizar(@PathVariable Long id, @RequestBody Cliente cliente){
+        Optional<Cliente> newCliente = service.getClienteById(id);
+        if (newCliente.isPresent() && newCliente.get().getId() == cliente.getId()){
+            return ResponseEntity.ok(new ClienteResponseDTO(service.save(cliente)));
+        }else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping(path = "/{id}")
